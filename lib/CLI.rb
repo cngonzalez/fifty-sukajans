@@ -4,31 +4,25 @@ class CLI
   end
 
 def start
-  puts "A sukajan is a silk emboidered jacket, first popularized by American GIs in Japan the 1940s. If you get a scorpion one, you can look like Ryan Gosling in Drive (WOW!). \n
-  Which 200 jackets on eBay would you like to look at? \n
-  -- type CHEAPEST \n
-  -- type ENDING SOON \n
-  -- type TOP RANKED \n
-  If you're here by mistake, feel free to type EXIT."
-  case gets.chomp
-  when "CHEAPEST"
-    option_url = "http://www.ebay.com/sch/Clothing-Shoes-Accessories/11450/i.html?ipg=200&_sop=15&_nkw=sukajan"
-  when "TOP RANKED"
-    option_url = "http://www.ebay.com/sch/i.html?_nkw=sukajan&ipg=200"
-  when "ENDING SOON"
-    option_url = "http://www.ebay.com/sch/i.html?ipg=200&_sop=1&_nkw=sukajan&rt=nc"
+  input = ""
+  until input == "EXIT"
+    puts "A sukajan is a silk emboidered jacket, first popularized by American GIs in Japan the 1940s. If you get a scorpion one, you can look like Ryan Gosling in Drive (WOW!).\nWhich 200 jackets on eBay would you like to look at?"
+    puts "-- type CHEAPEST\n-- type ENDING SOON\n-- type TOP RANKED\nIf you're here by mistake, feel free to type EXIT."
+    input = gets.chomp
+    narrowed = narrow_fork(Sukajan.url_options(input))
+    sorted = sort_fork(narrowed)
+    list(sorted)
   end
-  narrow_fork(option_url)
+  puts "See you later!"
 end
 
 def narrow_fork(option_url)
   Sukajan.scrape_sukajans(option_url)
   puts "Great! Before we get started, you can narrow your options: \n
-  KEYWORD: to only see items with a certain word or words in the name. I automatically eliminate common words from item names, so you might look for things like \"#{Sukajan.sample_keywords}\"\n
+  KEYWORD: to only see items with a certain word or words in the name. You might look for things like \"#{Sukajan.sample_keywords}\"\n
   REVERSE KEYWORD: to eliminate items with certain words in its name \n
-  PRICE ____ : to only see items below a certain price \n
-  NONE: to move forward with all 200 jackets"
-  binding.pry
+  PRICE  to only see items below a certain price \n
+  NONE: to move forward with all 50 jackets"
   case gets.chomp
   when "KEYWORD"
     puts "Please enter a keyword you'd like to search for."
@@ -46,78 +40,74 @@ def narrow_fork(option_url)
     puts "Okay! Moving on..."
     narrowed_array = Sukajan.all
   end
-  sort_fork(narrowed_array)
 end
 
+
 def sort_fork(sukajans)
-  puts "We're currently working with #{sukajans.length} jackets. Before I show them to you, should I sort them by:\n
-  NAME \n
-  PRICE \n
-  BIDS \n
-  NONE: JUST LET ME SEE THE JACKETS"
+  puts "We're currently working with #{sukajans.length} jackets. Before I show them to you, should I sort them by: NAME, PRICE (please format as $xx.xx), BIDS \n
+  You can also choose NONE if you just want to see jackets!"
   case gets.chomp
   when "NAME"
     sorted = sukajans.sort_by{|sukajan| sukajan.name}
   when "PRICE"
+    sorted = sukajans.sort_by{|sukajan| sukajan.price.to_f}
     binding.pry
-    sorted = sukajans.sort_by{|sukajan| sukajan.price}
   when "BIDS"
-    sorted = sukajans.sort_by{|sukajan| sukajan.bids}
+    sorted = sukajans.sort_by{|sukajan| sukajan.bids.to_f}
   when "NONE"
     sorted = sukajans
   end
   Sukajan.number_jackets(sorted)
-  display_CLI(sorted)
 end
 
-def display_CLI(sorted_sukajans)
-  until sorted_sukajans.empty?
-    display_sukajans = sorted_sukajans.slice!(0,24) || display_sukajans = sorted_sukajans.slice!(0, last)
-    display_25(display_sukajans)
-    puts "To see the next 25, type any key. To look closer at a particular jacket, type its number."
-    if gets.chomp != "EXIT"
-      display_sukajans = sorted_sukajans.slice!(0,24) || display_sukajans = sorted_sukajans.slice!(0, last)
-      display_25(display_sukajans)
+def list(sorted)
+  sorted_sukajans = sorted
+  input = ""
+  until input == "HOME"
+    until sorted_sukajans.empty?
+      display_sukajans = sorted_sukajans.slice!(0,9) || display_sukajans = sorted_sukajans.slice!(0, last)
+      display_10(display_sukajans)
+      puts "To see the next 10, type any key. To look closer at a particular jacket, type its number."
+      input = gets.chomp.to_i
+      jacket_profile(input.to_i) if input.to_i > 0
+    end
+    puts "You've reached the end of your list! You can review your list and type the number of the jacket you want to look at. You can also type HOME to start a new search or exit."
+    binding.pry
+    input = gets.chomp
+    jacket_profile(input.to_i) if input.to_i > 0
+  end
+end
+
+def display_10(sukajans)
+  sukajans.each do |sukajan|
+    puts "#{sukajan.number}. \"#{sukajan.name}\""
+    puts "Price (shipping included!): $#{sukajan.price_and_shipping}"
+    puts "Current bids: #{sukajan.bids} \n"
+  end
+end
+
+def jacket_profile(number)
+  input = ""
+  binding.pry
+  until input == "BACK"
+    jacket = Sukajan.all.detect{|jacket| jacket.number == number}
+    puts "You're currently looking at jacket \##{jacket.number}."
+    puts "Its name is #{jacket.name}"
+    puts "Its total cost is $#{sprintf('%.2f', jacket.price_and_shipping)}, of which $#{sprintf('%.2f', jacket.shipping.to_f)} is shipping."
+    puts "type IMAGE to see a picture of this jacket in your browser."
+    puts "type PROFILE to launch this jacket's profile into your browser."
+    puts "type DESC to see a longer item decription from the seller."
+    puts "type BACK to get back to your list of jackets."
+    input = gets.chomp
+    case input
+    when "IMAGE"
+      Launchy.open(jacket.image_link)
+    when "PROFILE"
+      Launchy.open(jacket.profile_url)
+    when "DESC"
+      puts jacket.description
     end
   end
 end
 
-def display_25(sukajans)
-  sukajans.each do |sukajan|
-    puts "#{sukajan.number}. \"#{sukajan.name}\""
-    puts "Price (shipping included!): $#{sukajan.price_and_shipping}"
-    puts "Current bids: #{sukajan.bids}"
-  end
 end
-
-def jacket_profile
-end
-
-def launch_url
-end
-
-
-
-end
-
-
-
-#     option = gets.chomp (options == cheapest, most on demand)
-#     options fork from option scrape
-#   end
-#
-#   options fork
-# winnowing options (search by name, search by price, eliminate things (such as Disney in name))
-#
-# sorting options (by price, by name, by bids)
-# group together by colors mentioned, etc.
-
-#refine to key words and unique terms
-
-
-#
-#
-#   ask for sorting, name compression, eliminate stuff
-#   possible groupings?
-#
-# end
