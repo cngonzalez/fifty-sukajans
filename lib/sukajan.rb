@@ -7,7 +7,7 @@ class Sukajan
 
   @@all = []
 
-  attr_accessor :name, :profile_url, :bids, :price, :shipping, :image_link, :number
+  attr_accessor :name, :profile_url, :bids, :price, :shipping, :number
 
   def initialize(name)
     @name = name
@@ -56,10 +56,6 @@ class Sukajan
     sprintf('%.2f', (price.to_f + shipping.to_f))
   end
 
-  def profile_description(profile_url)
-    profile = Nokogiri::HTML(open(profile_url))
-  end
-
   private
     def self.scrape_sukajans(url_option)
       all_sukajans = []
@@ -68,7 +64,6 @@ class Sukajan
         sukajan = Sukajan.new(item.css(".gvtitle h3").text.delete "\n" "\r" "\t")
         sukajan.profile_url = item.css(".gvtitle h3 a").attribute("href").value
         item.css(".gvshipping .ship .bfsp").empty? ? sukajan.shipping = item.css(".gvshipping .amt").text.gsub("$", "").to_f : sukajan.shipping = 0
-        sukajan.image_link = item.css(".multiImgHolder div img").attribute("src").value
         if !(item.css(".gvprices .bid").empty?)
           sukajan.bids = item.css(".gvprices .bid .lbl").text
           sukajan.price = item.css(".gvprices .bid .amt").text

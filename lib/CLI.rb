@@ -38,7 +38,7 @@ def narrow_fork(option_url)
     narrowed_array = Sukajan.price_search(price)
   when "NONE"
     puts "Okay! Moving on..."
-    narrowed_array = Sukajan.all
+    narrowed_array = Sukajan.all.dup
   end
 end
 
@@ -88,25 +88,15 @@ end
 
 def jacket_profile(number)
   input = ""
-  binding.pry
   until input == "BACK"
     jacket = Sukajan.all.detect{|jacket| jacket.number == number}
     puts "You're currently looking at jacket \##{jacket.number}."
     puts "Its name is #{jacket.name}"
     puts "Its total cost is $#{sprintf('%.2f', jacket.price_and_shipping)}, of which $#{sprintf('%.2f', jacket.shipping.to_f)} is shipping."
-    puts "type IMAGE to see a picture of this jacket in your browser."
     puts "type PROFILE to launch this jacket's profile into your browser."
-    puts "type DESC to see a longer item decription from the seller."
     puts "type BACK to get back to your list of jackets."
     input = gets.chomp
-    case input
-    when "IMAGE"
-      Launchy.open(jacket.image_link)
-    when "PROFILE"
-      Launchy.open(jacket.profile_url)
-    when "DESC"
-      puts jacket.description
-    end
+    Launchy.open(jacket.profile_url) if input == "PROFILE"
   end
 end
 
