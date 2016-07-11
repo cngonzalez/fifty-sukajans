@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require_relative '../lib/fifty_sukajans.rb'
 
 FiftySukajans::CLI.new.start
