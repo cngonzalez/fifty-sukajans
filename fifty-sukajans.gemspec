@@ -5,14 +5,14 @@
 Gem::Specification.new do |s|
   s.authors     = ["Carolina Gonzalez"]
   s.email       = ["carolina.nicole.gonzalez@gmail.com"]
-  s.homepage    = "https://github.com/thecarsgone/fifty_sukajans"
+  s.homepage    = "https://github.com/thecarsgone/fifty-sukajans"
   s.summary     = "This is a gem that will provide you with information on the top 50 sukajan jackets on eBay."
   s.description = "Replicates a search function on eBay via scraping, provides cursory information on items via the CLI, and allows users to launch eBay pages from the program."
 
-  s.name        = "fifty_sukajans"
+  s.name        = "fifty-sukajans"
   s.files       =  Dir['lib/**/*.rb']
 
-  s.version     = "1.0.0.pre"
+  s.version     = "1.0"
   s.executables = ['fifty-sukajans']
   s.require_path = ['lib', 'lib/fifty-sukajans']
 
