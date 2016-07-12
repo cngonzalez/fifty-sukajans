@@ -1,6 +1,6 @@
 module FiftySukajans
 
-class FiftySukajans::Sukajan
+class Sukajan
 
   @@all = []
 
@@ -92,4 +92,4 @@ class FiftySukajans::Sukajan
 
 end
 
-end
+end 

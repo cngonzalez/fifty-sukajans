@@ -1,5 +1,3 @@
-module FiftySukajans
-
 class FiftySukajans::CLI
 
   def initialize
@@ -115,8 +113,6 @@ def jacket_profile(number)
     input = gets.chomp
     Launchy.open(jacket.profile_url) if input == "PROFILE"
   end
-end
-
 end
 
 end
