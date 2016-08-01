@@ -1,3 +1,5 @@
+module FiftySukajans
+
 class FiftySukajans::CLI
 
   def initialize
@@ -9,13 +11,13 @@ def start
     puts "A sukajan is a silk emboidered jacket, first popularized by American GIs in Japan the 1940s. If you get a scorpion one, you can look like Ryan Gosling in Drive (WOW!).\nWhich 200 jackets on eBay would you like to look at?"
     puts "-- type 1 for CHEAPEST\n-- type 2 for ENDING SOON\n-- type 3 for TOP RANKED\nIf you're here by mistake, feel free to type EXIT."
     input = gets.chomp
-    if !([1, 2, 3].include?(input.to_i)) && input != "EXIT"
-      puts "Sorry! That's not a valid input. Try again."
-    elsif input == "EXIT"
+    if input == "EXIT"
       puts "See you later!"
+    elsif !([1, 2, 3].include?(input.to_i))
+      puts "Sorry! That's not a valid input. Try again."
     else
       narrowed = narrow_fork(FiftySukajans::Sukajan.url_options(input))
-      sorted = sort_fork(narrowed)
+      sorted = self.sort_fork(narrowed)
       list(sorted)
     end
   end
@@ -35,23 +37,16 @@ def narrow_fork(option_url)
     puts "Sorry! That's not a valid input. Try again."
    input = gets.chomp
   end
-    case input
-    when "1"
-      puts "Please enter a keyword you'd like to search for."
-      keyword = gets.chomp
-      narrowed_array = FiftySukajans::Sukajan.keyword_search(keyword)
-    when "2"
-      puts "Please enter a word you'd like to avoid."
-      keyword = gets.chomp
-      narrowed_array = FiftySukajans::Sukajan.reverse_keyword(keyword)
-    when "3"
-      puts "Please enter a price point you'd like to stay under."
-      price = gets.chomp
-      narrowed_array = FiftySukajans::Sukajan.price_search(price)
-    when "4"
-      puts "Okay! Moving on..."
-      narrowed_array = FiftySukajans::Sukajan.all.dup
-    end
+    choices(input.to_i)
+end
+
+def choices(input)
+  prompts = ["Please enter a keyword you'd like to search for.", "Please enter a word you'd like to avoid.", "Please enter a price point you'd like to stay under.", "Okay! Moving on..."]
+  puts prompts[input - 1]
+  second_input = gets.chomp
+  methods = [:keyword_search, :reverse_keyword, :price_search, :all]
+  FiftySukajans::Sukajan.send(methods[input - 1], input.to_s)
+  input == 4
 end
 
 
@@ -97,7 +92,7 @@ def display_10(sukajans)
   sukajans.each do |sukajan|
     puts "#{sukajan.number}. \"#{sukajan.name}\""
     puts "Price (shipping included!): $#{sukajan.price_and_shipping}"
-    puts "Current bids: #{sukajan.bids} \n"
+    puts "Current bids: #{sukajan.bids}"
   end
 end
 
@@ -115,4 +110,5 @@ def jacket_profile(number)
   end
 end
 
+end
 end

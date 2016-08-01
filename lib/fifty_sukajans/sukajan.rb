@@ -92,4 +92,4 @@ class Sukajan
 
 end
 
-end 
+end
